@@ -1,8 +1,18 @@
+# Virtual environment
 venv/
+
+# Large data files
 data/
+outputs/*.parquet
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
-._DS_Store
+.DS_Store
+
+# Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Environment variables
 .env
