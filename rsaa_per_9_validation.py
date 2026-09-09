@@ -255,7 +255,7 @@ plt.close()
 
 print("\nChecking Year-Over-Year Stability:")
 
-rsaa_wide = rv_by_pitcher.pivot_table(
+rsaa_wide = rv_by_pitcher[rv_by_pitcher["ip_decimal"] >= 30].pivot_table(
     index = "pitcher",
     columns = "game_year",
     values = "runs_saved_above_avg_per_9"
@@ -270,21 +270,23 @@ year_pairs = [(2022, 2023), (2023, 2024), (2024, 2025)]
 
 for ax, (yr1, yr2) in zip(axes, year_pairs):
     if yr1 not in rsaa_wide.columns or yr2 not in rsaa_wide.columns:
+        ax.set_visible(False)
         continue
 
-    pair_df = rsaa_wide[[yr1, yr2]].dropna()
-    pair_df = pair_df[
-        (np.abs(stats.zscore(pair_df[yr1])) < 3) &
-        (np.abs(stats.zscore(pair_df[yr2])) < 3)
+    pair= rsaa_wide[[yr1, yr2]].dropna()
+
+    mask = pair[
+        (np.abs(stats.zscore(pair[yr1])) < 3) &
+        (np.abs(stats.zscore(pair[yr2])) < 3)
     ]
 
-    ax.scatter(pair_df[yr1], pair_df[yr2], alpha = 0.4, s = 15, color = "#377ED8")
-    slope, intercept, r, p , se = stats.linregress(pair_df[yr1], pair_df[yr2])
+    ax.scatter(pair[yr1], pair[yr2], alpha = 0.4, s = 15, color = "#377ED8")
+    slope, intercept, r, p , se = stats.linregress(pair[yr1], pair[yr2])
 
-    x_line = np.linspace(pair_df[yr1].min(), pair_df[yr1].max(), 100)
+    x_line = np.linspace(pair[yr1].min(), pair[yr1].max(), 100)
 
     ax.plot(x_line, slope * x_line + intercept,
-            color = "#E41A1C", linewidth = 2, label = f"r = {r:.3f} | n = {len(pair_df)}")
+            color = "#E41A1C", linewidth = 2, label = f"r = {r:.3f} | n = {len(pair)}")
 
     ax.axhline(0, color = "black", linestyle = "--", linewidth = 0.8, alpha = 0.5)
     ax.axvline(0, color = "black", linestyle = "--", linewidth = 0.8, alpha = 0.5)
@@ -295,11 +297,73 @@ for ax, (yr1, yr2) in zip(axes, year_pairs):
     ax.legend(fontsize = 9)
 
 plt.tight_layout()
+
 plt.savefig("outputs/validation/rsaa_yoy_stability.png",
             dpi = 150, bbox_inches = "tight")
 
 plt.close()
 print("Saved YoY")
+
+stuff_wide = stuff_pitcher[stuff_pitcher["total_pitches"] >= 100].pivot_table(
+     index = "pitcher",
+     columns = "game_year",
+     values = "weight_stuff_plus"
+).reset_index()
+
+fig, axes = plt.subplots(1, 3, figsize = (16, 5))
+
+fig.suptitle("Stuff+ Year-over-Year Stability",
+             fontsize = 14, fontweight = "bold")
+
+year_pairs = [(2022, 2023), (2023, 2024), (2024, 2025)]
+
+
+print(f"Stuff+ Year over Year Stability:")
+
+for ax, (yr1, yr2) in zip(axes, year_pairs):
+     if yr1 not in stuff_wide.columns or yr2 not in stuff_wide.columns:
+          ax.set_visible(False)
+          continue
+
+     pair = stuff_wide[[yr1, yr2]].dropna()
+
+     mask = (
+          (np.abs(stats.zscore(pair[yr1])) < 3) &
+          (np.abs(stats.zscore(pair[yr2])) < 3)
+     )
+
+     pair = pair[mask]
+
+     ax.scatter(pair[yr1], pair[yr2], alpha = 0.4, s = 15, color = "#377ED8")
+
+     slope, intercept, r, p , se = stats.linregress(pair[yr1], pair[yr2])
+
+     x_line = np.linspace(pair[yr1].min(), pair[yr1].max(), 100)
+
+     ax.plot(x_line, slope * x_line + intercept,
+            color = "#E41A1C", linewidth = 2, label = f"r = {r:.3f} | n = {len(pair)}")
+
+     ax.axhline(100, color = "black", linestyle = "--", linewidth = 0.8, alpha = 0.5)
+
+     ax.axvline(100, color = "black", linestyle = "--", linewidth = 0.8, alpha = 0.5)
+
+     ax.set_xlabel(f"Stuff+ {yr1}")
+
+     ax.set_ylabel(f"Stuff+ {yr2}")
+
+     ax.set_title(f"{yr1} --> {yr2}")
+
+     ax.legend(fontsize = 9)
+
+     print(f" {yr1} --> {yr2}: r = {r:.3f} | n = {len(pair)}")
+
+plt.tight_layout()
+
+plt.savefig("outputs/validation/stuff+_yoy_stability.png",
+            dpi = 150, bbox_inches = "tight")
+
+plt.close()
+print("Saved YoY Stuff+")
 
 print("All validation plots saved to outputs/validation/")
 
