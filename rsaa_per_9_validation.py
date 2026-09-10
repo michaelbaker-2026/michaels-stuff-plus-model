@@ -356,7 +356,7 @@ for ax, (yr1, yr2) in zip(axes, year_pairs):
 
 plt.tight_layout()
 
-plt.savefig("outputs/validation/stuff+_yoy_stability.png",
+plt.savefig("outputs/validation/stuff_plus_yoy_stability.png",
             dpi = 150, bbox_inches = "tight")
 
 plt.close()
