@@ -117,9 +117,6 @@ print(pitching_stats[pitching_stats["ip"] >= 100]
     )
 
 
-
-
-
 print("\nMerging Datasets")
 
 validation_df = rv_by_pitcher.merge(

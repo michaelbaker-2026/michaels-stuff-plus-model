@@ -93,7 +93,9 @@ FEATURES = [
     "az",
     "vx0",
     "vy0",
-    "vz0"
+    "vz0",
+    "plate_x",
+    "plate_z"
 ]
 
 TARGET = "run_value"
